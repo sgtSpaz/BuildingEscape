@@ -1,0 +1,17 @@
+#########################
+#	UE Generated	#
+#########################
+
+/Build
+/Binaries
+/DerivedDataCache
+/Intermediate
+/Saved
+
+Content/StarterContent/
+
+#########################
+#	visual	#
+#########################
+.vs/
+*VC.db
