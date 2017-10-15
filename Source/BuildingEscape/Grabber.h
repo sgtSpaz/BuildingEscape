@@ -30,10 +30,21 @@ private:
 
 	UInputComponent* InputComponent = nullptr;
 
+	FString OwnerName;
+
 	//raycast and grab what's in reach
 	void Grab();
 
 	//called when grab key is released
 	void Release();
+
+	//gind phys handle component
+	void FindPhysHandleComponent();
+
+	//setup and bind input
+	void SetupInputComponent();
+
+	//return hit for 1st phys body in reach
+	const FHitResult GetFirstPhysBodyInReach();
 
 };
