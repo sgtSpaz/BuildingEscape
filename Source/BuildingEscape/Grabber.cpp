@@ -8,6 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Components/PrimitiveComponent.h"
+
 
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
@@ -66,22 +68,49 @@ void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("GrabPressed"));
 	//TODO line trace and see if we reach any actors with phys body collision channel set
-	GetFirstPhysBodyInReach();
+	auto HitResult = GetFirstPhysBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
 	//TODO if we hit something, then attach phys handle
+	if (ActorHit)
+	{
+		PhysicsHandle->GrabComponentAtLocationWithRotation(ComponentToGrab, NAME_None, ComponentToGrab->GetOwner()->GetActorLocation(), FRotator(0));
+	}
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Released!"));
 	//TODO release phys handle
+	auto HitResult = GetFirstPhysBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+	if (ActorHit)
+	{
+		PhysicsHandle->ReleaseComponent();
+	}
 }
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	///get player viewpoint
+	FVector PlayerViewpointLocation;
+	FRotator PlayerViewpointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewpointLocation,
+		OUT PlayerViewpointRotation
+	);
+
+	FVector LineTraceEnd = PlayerViewpointLocation + PlayerViewpointRotation.Vector() * Reach;
+
 	//if phys handle is attached
-		//move the object we're holding
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+	//move the object we're holding
 	
 	
 	///see what we hit
@@ -118,7 +147,8 @@ const FHitResult UGrabber::GetFirstPhysBodyInReach()
 	AActor* ActorHit = Hit.GetActor();
 	if (ActorHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *(ActorHit->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("Hit on Actor: %s"), *(ActorHit->GetName()));
+
 	}
 
 	return Hit;
