@@ -9,8 +9,10 @@
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 
-#define OUT
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 
+#define OUT
+#define PTR
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -22,12 +24,45 @@ UGrabber::UGrabber()
 	// ...
 }
 
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("GrabPressed"));
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Released!"));
+}
 
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
+	FString OwnerName = GetOwner()->GetName();
 	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
+	///look for attached Phys handle
+	PTR PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+	}
+	else
+	{
+	UE_LOG(LogTemp, Error, TEXT("No phys handle on %s"), *OwnerName);
+	};
+
+	///look for attached Phys handle
+	PTR InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InputComponent found on %s"), *OwnerName);
+		InputComponent->BindAction("Grab",IE_Pressed,this,&UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else
+	{		
+		UE_LOG(LogTemp, Error, TEXT("No input component on %s"), *OwnerName);
+	};
+	
 }
 
 
@@ -43,12 +78,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT PlayerViewpointLocation,
 		OUT PlayerViewpointRotation
 	);
-
+/*
 	UE_LOG(LogTemp, Warning, TEXT("Location: %s, Rotation: %s"), 
 		*PlayerViewpointLocation.ToString(), 
 		*PlayerViewpointRotation.ToString()
 	);
-
+*/
 	FVector LineTraceEnd = PlayerViewpointLocation + PlayerViewpointRotation.Vector() * Reach;
 
 	///setup query params
