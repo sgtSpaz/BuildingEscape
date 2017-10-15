@@ -31,7 +31,7 @@ private:
 	UInputComponent* InputComponent = nullptr;
 
 	FString OwnerName;
-
+	
 	//raycast and grab what's in reach
 	void Grab();
 
@@ -43,6 +43,12 @@ private:
 
 	//setup and bind input
 	void SetupInputComponent();
+
+	//call this to get the trace end
+	FVector GetReachLineEnd();
+
+	//call this to get the trace start
+	FVector GetReachLineStart();
 
 	//return hit for 1st phys body in reach
 	const FHitResult GetFirstPhysBodyInReach();
